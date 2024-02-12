@@ -25,8 +25,9 @@ gtin = int(result_1[0]) if result_1 else None
 exp = int(result_2[0]) if result_2 else None
 lot = int(result_3[0]) if result_3 else None
 
-# Convert the Exp to time format
-Exp = pd.to_datetime(exp, format='%y%m%d')
+# Convert exp to text
+exp = str(exp)
+
 # Get today date
 today = dt.date.today()
 
@@ -35,7 +36,7 @@ corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
 check_button = st.button('Check', help='Click to verify the expiration date')
 
 if check_button:
-    if Exp == corr_exp:
+    if exp == corr_exp:
         st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
         st.success(f"Validation successful!")
     else:
