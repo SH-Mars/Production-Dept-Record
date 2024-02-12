@@ -8,16 +8,6 @@ st.title('Expiration Date Velidation ✔️')
 
 st.write('Scan the barcode on the Case Label')
 
-realans = ['', 'abc', 'edf']
-
-if  st.session_state['answer'] in realans:
-    answerStat = "correct"
-elif st.session_state['answer'] not in realans:
-    answerStat = "incorrect"
-    
-st.write(st.session_state)
-st.write(answerStat)
-
 barcode = st.text_input('Barcode')
 
 # Define patterns for each number you want to extract
