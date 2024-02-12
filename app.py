@@ -2,7 +2,6 @@ import streamlit as st
 import pandas as pd
 import re
 import datetime as dt
-import pyautogui
 
 st.set_page_config(page_title='Exp Date Verification ✔️')
 st.title('Expiration Date Velidation ✔️')
@@ -56,4 +55,4 @@ if check_button:
 reset_button = st.button('Reset', type='primary')
 
 if reset_button:
-    pyautogui.hotkey('ctrl', 'F5')
+    st.experimental_rerun()
