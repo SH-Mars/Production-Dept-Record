@@ -4,7 +4,7 @@ import re
 import datetime as dt
 
 st.set_page_config(page_title='Exp Date Verification ✔️')
-st.title('Expiration Date Velidation ✔️')
+st.title('Expiration Date Validation ✔️')
 
 st.write('Scan the barcode on the Case Label')
 
