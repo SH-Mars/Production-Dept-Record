@@ -1,9 +1,11 @@
 import streamlit as st
-import pandas as pd
 import re
 import datetime as dt
-import sqlite3 as sqlite
-from sqlite3 import Error
+import pyodbc
+import smtplib as s
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from keys import sql_user_name, email_sender, password, email_receiver
 
 # Basic layout of the page
 st.set_page_config(page_title='Exp Date Verification ✔️')
@@ -12,28 +14,35 @@ st.title('Expiration Date Validation ✔️')
 st.write('Scan the barcode on the Case Label')
 
 # ------------------------------------------------------------------
-# Create the SQL connection to db
-def create_connection(db_file):
-    
-    conn = None
+
+def insert_data_into_sql_server(a, b, c, d, e):
     
     try:
-        conn = sqlite.connect(db_file)
+        # Create the SQL connection to db
+        connection_string = 'DRIVER={SQL Server};SERVER=TEST-VM04;DATABASE=first_label_scan;UID=sql_user_name;Trusted_Connection=yes;'
 
-    except Error as e:
-        print(e)
-    return conn
+        # Establish a connection to the database
+        conn = pyodbc.connect(connection_string)
 
-conn = create_connection('first_label_scan.db')
-cur = conn.cursor()
-# cur.execute("DROP TABLE IF EXISTS scan_record")
-# ------------------------------------------------------------------
+        # Create a cursor object
+        cursor = conn.cursor()
 
-def insertData(a, b, c, d, e):
-    cur.execute("""CREATE TABLE IF NOT EXISTS scan_record (scan_time DATETIME, item_gtin nvarchar(14), lot nvarchar(4), exp_date nvarchar(6), if_pass nvarchar(3));""")
-    cur.execute("""INSERT INTO scan_record VALUES(?, ?, ?, ?, ?)""", (a, b, c, d, e))
-    conn.commit()
+        # cursor.execute("""CREATE TABLE IF NOT EXISTS scan_record (scan_time DATETIME, item_gtin nvarchar(14), lot nvarchar(4), exp_date nvarchar(6), if_pass nvarchar(3));""")
+        cursor.execute("""INSERT INTO scan_record VALUES(?, ?, ?, ?, ?)""", (a, b, c, d, e))
     
+        # Commit the query
+        cursor.commit()
+    
+        # Close the cursor and connection
+        cursor.close()
+        conn.close()
+    
+        return True
+    
+    except pyodbc.Error as e:
+        st.error(f"Error: {e}")
+        return False
+        
 # ------------------------------------------------------------------
 
 placeholder = st.empty()
@@ -66,19 +75,71 @@ scan_time = dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
 
 check_button = st.button('Check', help='Click to verify the expiration date')
 
+# ------------------------------------------------------------------
+
+def email_notification(email_sender, password, subject, body, email_receiver):
+    try:
+        # Create the email message
+        message = MIMEMultipart()
+        message["From"] = email_sender
+        message["To"] = email_receiver
+        message["Subject"] = subject
+        message.attach(MIMEText(body, "plain"))
+        
+        server = s.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(email_sender, password)
+
+        # Send the email
+        server.sendmail(email_sender, email_receiver, message.as_string())
+
+        print("Email sent successfully!")
+
+    except s.SMTPException as e:
+        print(f"Error: {e}")
+
+    finally:
+        # Close the connection
+        server.quit()
+# ------------------------------------------------------------------
+
+email_sender = email_sender
+password = password
+subject = 'Label Expiration Date Validation Failed'
+body = f"""
+    A First Piece Label Expiration Date Validation of Lot {lot} just failed. Please double check with the Production Dept to ensure the accuracy.
+"""
+email_receiver = email_receiver
+
+# ------------------------------------------------------------------
+
+if_pass = ""
+
 if check_button:
     if exp == corr_exp:
         if_pass = "Yes"
-        insertData(scan_time, gtin, lot, exp, if_pass)
+        
         st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
         st.success(f"Validation successful!")
         
+        if insert_data_into_sql_server(scan_time, gtin, lot, exp, if_pass):  
+            st.success("Data inserted successfully!")
+        else:
+            st.error("Failed to insert data.")    
+        
     else:
         if_pass = "No"
-        insertData(scan_time, gtin, lot, exp, if_pass)
+        
         st.warning('Double Check the Expiration Date', icon="⚠️")
         st.error(f"Expiration Date: {dt.date(today.year + 3, today.month, 1).strftime('%Y-%m-%d')}")
+        
+        email_notification(email_sender, password, subject, body, email_receiver)
 
+        if insert_data_into_sql_server(scan_time, gtin, lot, exp, if_pass):  
+            st.success("Data inserted successfully!")
+        else:
+            st.error("Failed to insert data.")
+            
 def clear_barcode():
     st.session_state['Barcode'] = ""
 
