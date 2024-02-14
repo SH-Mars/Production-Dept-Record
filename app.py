@@ -5,6 +5,7 @@ import pyodbc
 import smtplib as s
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+# from keys import sql_user_name, email_sender, password, email_receiver
 
 # Basic layout of the page
 st.set_page_config(page_title='Exp Date Verification ✔️')
@@ -76,21 +77,21 @@ check_button = st.button('Check', help='Click to verify the expiration date')
 
 # ------------------------------------------------------------------
 
-def email_notification(email_sender, password, subject, body, email_receiver):
+def email_notification(a, b, c, d, e):
     try:
         # Create the email message
         message = MIMEMultipart()
-        message["From"] = email_sender
-        message["To"] = email_receiver
-        message["Subject"] = subject
-        message.attach(MIMEText(body, "plain"))
+        message["From"] = a
+        message["To"] = e
+        message["Subject"] = c
+        message.attach(MIMEText(d, "plain"))
         
         server = s.SMTP("smtp.gmail.com", 587)
         server.starttls()
-        server.login(email_sender, password)
+        server.login(a, b)
 
         # Send the email
-        server.sendmail(email_sender, email_receiver, message.as_string())
+        server.sendmail(a, e, message.as_string())
 
         print("Email sent successfully!")
 
