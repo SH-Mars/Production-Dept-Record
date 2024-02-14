@@ -5,7 +5,6 @@ import pyodbc
 import smtplib as s
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from keys import sql_user_name, email_sender, password, email_receiver
 
 # Basic layout of the page
 st.set_page_config(page_title='Exp Date Verification ✔️')
