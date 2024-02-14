@@ -3,5 +3,4 @@ numpy
 streamlit
 datetime
 pyodbc
-smtplib
 email
