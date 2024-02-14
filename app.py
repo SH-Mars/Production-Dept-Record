@@ -24,7 +24,7 @@ def login():
 
 def init_connection():
     return pyodbc.connect(
-        "DRIVER={SQL Server};SERVER="
+        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
         + st.secrets["server"]
         + ";DATABASE="
         + st.secrets["database"]
