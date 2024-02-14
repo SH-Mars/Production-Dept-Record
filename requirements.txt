@@ -1,7 +1,5 @@
-pandas
-numpy
 streamlit
 datetime
-pyodbc
 smtplib
 email
+pyodbc==4.0.34
