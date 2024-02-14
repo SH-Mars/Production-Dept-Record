@@ -19,7 +19,7 @@ def insert_data_into_sql_server(a, b, c, d, e):
     
     try:
         # Create the SQL connection to db
-        connection_string = 'DRIVER={SQL Server};SERVER=TEST-VM04;DATABASE=first_label_scan;UID=sql_user_name;Trusted_Connection=yes;'
+        connection_string = 'DRIVER={SQL Server};SERVER=TEST-VM04;DATABASE=first_label_scan;UID=st.secrets["sql_user_name"];Trusted_Connection=yes;'
 
         # Establish a connection to the database
         conn = pyodbc.connect(connection_string)
@@ -103,13 +103,13 @@ def email_notification(email_sender, password, subject, body, email_receiver):
         server.quit()
 # ------------------------------------------------------------------
 
-email_sender = email_sender
-password = password
+email_sender = st.secrets["email_sender"]
+password = st.secrets["password"]
 subject = 'Label Expiration Date Validation Failed'
 body = f"""
     A First Piece Label Expiration Date Validation of Lot {lot} just failed. Please double check with the Production Dept to ensure the accuracy.
 """
-email_receiver = email_receiver
+email_receiver = st.secrets["email_receiver"]
 
 # ------------------------------------------------------------------
 
