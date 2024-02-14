@@ -18,7 +18,7 @@ def insert_data_into_sql_server(a, b, c, d, e):
     
     try:
         # Create the SQL connection to db
-        connection_string = 'DRIVER={SQL Server};SERVER=TEST-VM04;DATABASE=first_label_scan;UID=st.secrets["sql_user_name"];Trusted_Connection=yes;'
+        connection_string = 'DRIVER={SQL Server};SERVER=TEST-VM04;DATABASE=first_label_scan;UID=APLUS_NT\shihhsienma;Trusted_Connection=yes;'
 
         # Establish a connection to the database
         conn = pyodbc.connect(connection_string)
