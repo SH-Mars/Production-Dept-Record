@@ -136,7 +136,8 @@ def main():
                 st.warning('Double Check the Expiration Date', icon="⚠️")
                 st.error(f"Expiration Date: {dt.date(today.year + 3, today.month, 1).strftime('%Y-%m-%d')}")
                 
-                email_notification(email_sender, password, subject, body, email_receiver)
+                for i in email_receiver:
+                    email_notification(email_sender, password, subject, body, email_receiver)
 
                 query = f"""
                 INSERT INTO `{table_name}` VALUES ('{scan_time}', '{gtin}', '{lot}', '{exp}', '{if_pass}')
