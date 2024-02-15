@@ -1,10 +1,11 @@
 import streamlit as st
 import re
 import datetime as dt
-import pyodbc
 import smtplib as s
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
+from google.oauth2 import service_account
+from google.cloud import bigquery
 # from keys import sql_user_name, email_sender, password, email_receiver
 
 # -----------------------------------------------------------------
@@ -21,44 +22,14 @@ def login():
         else:
             st.error("Invalid credentials")
 # ------------------------------------------------------------------
+# Create API client
+credentials = service_account.Credentials.from_service_account_file('cosmic-tensor-414319-e50ab0396370.json')
+client = bigquery.Client(credentials=credentials)
 
-def init_connection():
-    return pyodbc.connect(
-        "DRIVER={ODBC Driver 17 for SQL Server};SERVER="
-        + st.secrets["server"]
-        + ";DATABASE="
-        + st.secrets["database"]
-        + ";UID=APLUS_NT\shihhsienma"
-        + ";Trusted_Connection=yes"
-    )
-
-def insert_data_into_sql_server(a, b, c, d, e):
-    
-    try:
-        # Establish a connection to the database
-        conn = init_connection()
-
-        # Create a cursor object
-        cursor = conn.cursor()
-
-        # cursor.execute("""CREATE TABLE IF NOT EXISTS scan_record (scan_time DATETIME, item_gtin nvarchar(14), lot nvarchar(4), exp_date nvarchar(6), if_pass nvarchar(3));""")
-        cursor.execute("""INSERT INTO scan_record VALUES(?, ?, ?, ?, ?)""", (a, b, c, d, e))
-    
-        # Commit the query
-        cursor.commit()
-    
-        # Close the cursor and connection
-        cursor.close()
-        conn.close()
-    
-        return True
-    
-    except pyodbc.Error as e:
-        st.error(f"Error: {e}")
-        return False
+def run_query(query):
+    client.query(query)
         
 # ------------------------------------------------------------------
-
 def email_notification(a, b, c, d, e):
     try:
         # Create the email message
@@ -87,15 +58,7 @@ def email_notification(a, b, c, d, e):
         
 def clear_barcode():
         st.session_state['Barcode'] = ""
-        
-def data_display():
-    conn = init_connection()
-    cur = conn.cursor()
-    df_table = cur.execute("SELECT * FROM scan_record ORDER BY scan_time;")
-    st.dataframe(df_table)
-    
-    cur.close()
-    conn.close()
+
 # ------------------------------------------------------------------
 
 def main():
@@ -130,8 +93,10 @@ def main():
         exp = int(result_2[0]) if result_2 else None
         lot = int(result_3[0]) if result_3 else None
 
-        # Convert exp to text
+        # Convert to text
+        gtin = str(gtin)
         exp = str(exp)
+        lot = str(lot)
 
         # Get today date
         today = dt.date.today()
@@ -152,34 +117,32 @@ def main():
         """
         email_receiver = st.secrets["email_receiver"]
 # ------------------------------------------------------------------
+        table_name = "cosmic-tensor-414319.scan_record.scan_record"
         if_pass = ""
 
         if check_button:
             if exp == corr_exp:
                 if_pass = "Yes"
-        
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
                 st.success(f"Validation successful!")
-        
-                if insert_data_into_sql_server(scan_time, gtin, lot, exp, if_pass):  
-                    st.success("Data inserted successfully!")
-                else:
-                    st.error("Failed to insert data.")    
-        
+
+                query = f"""
+                INSERT INTO `{table_name}` VALUES ('{scan_time}', '{gtin}', '{lot}', '{exp}', '{if_pass}')
+                """
+                run_query(query)   
+                st.success("Data inserted successfully!")
             else:
                 if_pass = "No"
-        
                 st.warning('Double Check the Expiration Date', icon="⚠️")
                 st.error(f"Expiration Date: {dt.date(today.year + 3, today.month, 1).strftime('%Y-%m-%d')}")
-        
+                
                 email_notification(email_sender, password, subject, body, email_receiver)
 
-                if insert_data_into_sql_server(scan_time, gtin, lot, exp, if_pass):  
-                    st.success("Data inserted successfully!")
-                else:
-                    st.error("Failed to insert data.")
-            
-    
+                query = f"""
+                INSERT INTO `{table_name}` VALUES ('{scan_time}', '{gtin}', '{lot}', '{exp}', '{if_pass}')
+                """
+                run_query(query)
+                st.success("Data inserted successfully!")
 
         st.button('Reset', type='primary', on_click=clear_barcode)
 
@@ -190,8 +153,15 @@ def main():
         show_data = st.button('Previous Data')
 
         if show_data:
-            data_display()
-
+            query = f"""
+            SELECT * FROM `{table_name}` 
+            ORDER BY scan_time
+            """
+            
+            rows = client.query(query).result()
+            
+            for row in rows:
+                st.write(row)
 # ------------------------------------------------------------------
 if __name__ == "__main__":
     main()
