@@ -2,4 +2,3 @@ streamlit
 datetime
 pyodbc==4.0.34
 google-cloud-bigquery==2.34.3
-google.oauth2
