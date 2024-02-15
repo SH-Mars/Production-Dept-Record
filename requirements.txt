@@ -1,6 +1,5 @@
 streamlit
 datetime
-smtplib
 email
 pyodbc==4.0.34
 google-cloud-bigquery==2.34.3
