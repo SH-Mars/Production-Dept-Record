@@ -158,6 +158,7 @@ def main():
             query = f"""
             SELECT * FROM `{table_name}` 
             ORDER BY scan_time
+            LIMIT 10
             """
             
             rows = client.query(query).result()
