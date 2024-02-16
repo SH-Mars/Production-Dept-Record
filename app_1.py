@@ -167,14 +167,16 @@ def main():
 
         st.write("Reach out to QA Dept for any needs to review the scanning records.")
 
-
-
         show_data = st.button('Previous Data')
 
         if show_data:
             with engine.connect() as connection:
                 result = connection.execute("SELECT * FROM scan_record").fetchall()
-                st.dataframe(result)
+                df = pd.DataFrame(result, columns=['ID', 'scan_time', 'GTIN', 'Lot', 'Exp_date', 'If_pass'])
+                st.dataframe(df)
+                
+        #for row in result:
+            #st.write(f"ID: {row.id}, scan_time: {row.scan_time}, GTIN: {row.item_gtin}, Lot: {row.lot}, Exp Date: {row.exp_date}, if_pass: {row.if_pass}")
 # ------------------------------------------------------------------
 if __name__ == "__main__":
     main()
