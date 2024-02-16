@@ -6,7 +6,9 @@ import datetime as dt
 import smtplib as s
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import sqlite3 as sqlite
+from sqlalchemy import create_engine, Column, String, Integer
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 # from keys import sql_user_name, email_sender, password, email_receiver
 
 # -----------------------------------------------------------------
@@ -24,15 +26,20 @@ def login():
             st.error("Invalid credentials")
 # ------------------------------------------------------------------
 # SQLite connection
-conn = sqlite.connect('first_label_scan.db')
-cur = conn.cursor()
-# cur.execute("DROP TABLE IF EXISTS scan_record")
+DATABASE_URI = 'sqlite:///first_label_scan.db'
+Base = declarative_base()
 
-def insertData(a, b, c, d, e):
-    cur.execute("""CREATE TABLE IF NOT EXISTS scan_record (scan_time TEXT(50), item_gtin TEXT(14), lot TEXT(4), exp_date TEXT(6), if_pass TEXT);""")
-    cur.execute("""INSERT INTO scan_record VALUES (?, ?, ?, ?, ?)""", (a, b, c, d, e))
-    conn.commit()    
-
+class ScanRecord(Base):
+    __tablename__ = 'scan_record'
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    scan_time = Column(String)
+    item_gtin = Column(String(14))
+    lot = Column(String(4))
+    exp_date = Column(String(6))
+    if_pass = Column(String(3))
+    
+engine = create_engine(DATABASE_URI)
+Base.metadata.create_all(engine)
 # ------------------------------------------------------------------
 def email_notification(a, b, c, d, e):
     try:
@@ -130,7 +137,12 @@ def main():
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
                 st.success(f"Validation successful!")
 
-                insertData(scan_time, gtin, lot, exp, if_pass)   
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                
+                new_record = ScanRecord(scan_time=scan_time, item_gtin=gtin, lot=lot, exp_date=exp, if_pass=if_pass)
+                session.add(new_record)
+                session.commit() 
                 
                 st.success("Data inserted successfully!")
             else:
@@ -142,7 +154,12 @@ def main():
                     receiver = person
                     email_notification(email_sender, password, subject, body, receiver)
                     
-                insertData(scan_time, gtin, lot, exp, if_pass)
+                Session = sessionmaker(bind=engine)
+                session = Session()
+                
+                new_record = ScanRecord(scan_time=scan_time, item_gtin=gtin, lot=lot, exp_date=exp, if_pass=if_pass)
+                session.add(new_record)
+                session.commit()
                 
                 st.success("Data inserted successfully!")
 
@@ -155,8 +172,9 @@ def main():
         show_data = st.button('Previous Data')
 
         if show_data:
-            db_table = pd.read_sql_query("SELECT * FROM scan_record ORDER BY scan_time DESC LIMIT 10;", conn)
-            st.dataframe(db_table)
+            with engine.connect() as connection:
+                result = connection.execute("SELECT * FROM scan_record ORDER BY scan_time").fetchall()
+                st.dataframe(result)
 # ------------------------------------------------------------------
 if __name__ == "__main__":
     main()
