@@ -155,7 +155,7 @@ def main():
         show_data = st.button('Previous Data')
 
         if show_data:
-            db_table = pd.read_sql_query("SELECT * FROM scan_record ORDER BY scan_time DESC LIMIT 10;", conn)
+            db_table = pd.read_sql_query("SELECT * FROM scan_record ORDER BY scan_time", conn)
             st.dataframe(db_table)
 # ------------------------------------------------------------------
 if __name__ == "__main__":
