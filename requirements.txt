@@ -3,4 +3,3 @@ pandas
 datetime
 smtplib
 email
-sqlite3
