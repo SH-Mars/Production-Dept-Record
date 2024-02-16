@@ -173,7 +173,7 @@ def main():
 
         if show_data:
             with engine.connect() as connection:
-                result = connection.execute("SELECT * FROM scan_record ORDER BY scan_time").fetchall()
+                result = connection.execute("SELECT * FROM scan_record").fetchall()
                 st.dataframe(result)
 # ------------------------------------------------------------------
 if __name__ == "__main__":
