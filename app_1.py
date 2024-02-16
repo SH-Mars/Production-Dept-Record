@@ -106,7 +106,7 @@ def main():
 
         corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
 
-        scan_time = dt.datetime.today().strftime('%Y-%m-%d %H:%M:%S')
+        scan_time = dt.datetime.now(tz=None).strftime('%Y-%m-%d %H:%M:%S')
 
         check_button = st.button('Check', help='Click to verify the expiration date')
 
