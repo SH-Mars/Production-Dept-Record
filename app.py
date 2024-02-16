@@ -157,7 +157,7 @@ def main():
         if show_data:
             query = f"""
             SELECT * FROM `{table_name}` 
-            ORDER BY scan_time
+            ORDER BY scan_time DESC
             LIMIT 10
             """
             
