@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 import re
+import pytz
 import datetime as dt
 import smtplib as s
 from email.mime.multipart import MIMEMultipart
@@ -105,15 +106,16 @@ def main():
         today = dt.date.today()
 
         corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
-
-        scan_time = dt.datetime.now(tz=None).strftime('%Y-%m-%d %H:%M:%S')
+        
+        tzInfo = pytz.timezone('America/Los_Angeles')
+        scan_time = dt.datetime.now(tz=tzInfo).strftime('%Y-%m-%d %H:%M:%S')
 
         check_button = st.button('Check', help='Click to verify the expiration date')
 
 # ------------------------------------------------------------------
         email_sender = st.secrets["email_sender"]
         password = st.secrets["password"]
-        subject = '❗Label Expiration Date Validation Failed ⚠️'
+        subject = 'Label Expiration Date Validation Failed'
         body = f"""
         A First Piece Label Expiration Date Validation of Lot {lot} just failed. 
         Please double check with the Production Dept to ensure the accuracy.
