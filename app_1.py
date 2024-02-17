@@ -27,8 +27,8 @@ def login():
 conn = sqlite.connect('first_label_scan.db')
 cur = conn.cursor()
 # cur.execute("DROP TABLE IF EXISTS scan_record")
-cur.execute("""DELETE FROM scan_record;""")
-conn.commit()
+# cur.execute("""DELETE FROM scan_record;""")
+# conn.commit()
 
 def insertData(a, b, c, d, e):
     cur.execute("""CREATE TABLE IF NOT EXISTS scan_record (scan_time TEXT(50), item_gtin TEXT(14), lot TEXT(4), exp_date TEXT(6), if_pass TEXT);""")
