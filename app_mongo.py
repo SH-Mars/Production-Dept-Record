@@ -25,7 +25,9 @@ def login():
             st.error("Invalid credentials")
 # ------------------------------------------------------------------
 # MongoDB connection
-CONNECTION_STRING = f"mongodb+srv://{st.secrets["mongo_username"]}:{st.secrets["mongo_password"]}@cluster.89jetih.mongodb.net/"
+username = st.secrets["mongo_username"]
+password = st.secrets["mongo_password"]
+CONNECTION_STRING = f"mongodb+srv://{username}:{password}@cluster.89jetih.mongodb.net/"
 
 client = pymongo.MongoClient(CONNECTION_STRING)
 db = client["first_label_scan"]
