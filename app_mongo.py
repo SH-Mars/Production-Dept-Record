@@ -115,7 +115,7 @@ def main():
 # ------------------------------------------------------------------
         email_sender = st.secrets["email_sender"]
         password = st.secrets["password"]
-        subject = 'Label Expiration Date Validation Failed'
+        subject = '❗Label Expiration Date Validation Failed⚠️'
         body = f"""
         A First Piece Label Expiration Date Validation of Lot {lot} just failed. 
         Please double check with the Production Dept to ensure the accuracy.
