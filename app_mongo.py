@@ -125,7 +125,10 @@ def main():
         if_pass = ""
 
         if check_button:
-            if exp == corr_exp:
+            if barcode == "":
+                st.warning('Please scan the barcode before clicking Check button.')
+                
+            elif barcode != "" and exp == corr_exp:
                 if_pass = "Yes"
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
                 st.success(f"Validation successful!")
