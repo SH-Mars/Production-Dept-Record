@@ -127,8 +127,8 @@ def main():
         if check_button:
             if barcode == "":
                 st.warning('Please scan the barcode before clicking Check button.')
-            
-            elif (gtin == None) or (lot == None) or (exp == None):
+                
+            elif gtin == "None" or lot == "None" or exp == "None":
                 st.warning('Please clear out and make sure to scan the barcode properly then try again.')
                 
             elif barcode != "" and exp == corr_exp:
