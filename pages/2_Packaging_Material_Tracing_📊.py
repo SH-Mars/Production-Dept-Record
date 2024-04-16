@@ -51,17 +51,7 @@ def generate_pdf(image_path, user_data, image_width, image_height):
     # build the PDF
     doc.build(content)
     
-    # read the content of the temporary file
-    with open(temp_file_path, 'rb') as f:
-        pdf_bytes = f.read()
-        
-    # delete the temporary file
-    temp_file.close()
-    
-    # Show PDF as base64 encoded string
-    pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
-    pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="1000" type="application/pdf">'
-    st.markdown(pdf_display, unsafe_allow_html=True)
+    return temp_file_path
     
 
 # Streamlit App
@@ -79,15 +69,18 @@ def main():
         data["Part Number"] = st.text_input('Part Number')
         
         if data["Part Number"] == "RS-T440-1":
-            image = "images/amcor.png"
             data["Item Number"] = st.text_input('Item No')
             data["Roll No"] = st.text_input('Roll Number')
             data["Batch Number"] = st.text_input('Batch Number')
             data["MSI"] = st.text_input('MSI')
             data["PO Number"] = st.text_input('PO No')
+
+            image = "images/amcor.png"
+            image_path = f"temp_image.{image.type.split('/')[-1]}"
             
         else:
             image = "images/oliver.png"
+            image_path = f"temp_image.{image.type.split('/')[-1]}"
         
             data["PO Number"] = st.text_input('PO Number')
             data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
@@ -98,9 +91,16 @@ def main():
             data["HU ID"] = id[10:]
         
         submit = st.button("Submit")
-        
+        with open(image, "wb") as f:
+              f.write(image.getbuffer())
+      
         if submit:
-            generate_pdf(image, data, 155, 130)
+            pdf_filename = generate_pdf(data, image_path, 155, 130)
+
+            with open(pdf_filename, 'rb') as f:
+              pdf_bytes = f.read()
+              st.write(pdf_bytes)
+              
             st.success('Table printed successfully!')
                 
     elif material_type == 'Soft Pack':
