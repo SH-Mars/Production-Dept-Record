@@ -74,7 +74,7 @@ def main():
         data["Part Number"] = st.text_input('Part Number')
         
         if data["Part Number"] == "RS-T440-1":
-            image = "images/amcor.png"
+            image_path = "images/amcor.png"
           
             data["Item Number"] = st.text_input('Item No')
             data["Roll No"] = st.text_input('Roll Number')
@@ -83,7 +83,7 @@ def main():
             data["PO Number"] = st.text_input('PO No')
             
         else:
-            image = "images/oliver.png"
+            image_path = "images/oliver.png"
         
             data["PO Number"] = st.text_input('PO Number')
             data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
@@ -96,12 +96,12 @@ def main():
         submit = st.button("Submit")
       
         if submit:
-            pdf_path = generate_pdf(data, image, 155, 130)
+            pdf_path = generate_pdf(image_path, data, 155, 130)
               
             st.success('Table printed successfully!')
                 
     elif material_type == 'Soft Pack':
-        image = "images/amcor.png"
+        image_path = "images/amcor.png"
         data["Item Number"] = st.text_input('Item No')
         data["Roll No"] = st.text_input('Roll Number')
         data["Batch Number"] = st.text_input('Batch Number')
@@ -111,11 +111,11 @@ def main():
         submit = st.button("Submit")
         
         if submit:
-            generate_pdf(image, data, 135, 95)
+            generate_pdf(image_path, data, 135, 95)
             st.success('Table printed successfully!')
         
     else:
-        image = "images/primex.png"
+        image_path = "images/primex.png"
         item_number = 'RS-H460-2'
         st.subheader(f"Part Number: {item_number}")
         data["Item Number"] = item_number
@@ -128,7 +128,7 @@ def main():
         submit = st.button("Submit")
 
         if submit:
-            generate_pdf(image, data, 150, 120)
+            generate_pdf(image_path, data, 150, 120)
             st.success('Table printed successfully!')
 
 if __name__ == "__main__":
