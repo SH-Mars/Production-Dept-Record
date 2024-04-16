@@ -2,7 +2,7 @@ import streamlit as st
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Image, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
-
+from PIL import Image
 import tempfile
 import base64
 
@@ -21,9 +21,14 @@ def generate_pdf(image_path, user_data, image_width, image_height):
     
     # define the content
     content = []
-    image = Image(image_path, width=image_width, height=image_height)
+    # Prepare the image for the table
+    image = Image.open(image_path)
+    image = image.resize((image_width, image_height))  # Resize the image if needed
+    image_buffer = tempfile.NamedTemporaryFile(delete=False)
+    image.save(image_buffer, format="PNG")
+    image_buffer.close()
     image.rotate = 90
-    content.append(image)
+    content.append(image_buffer.name)
     
     # add data as a table
     data = []
@@ -69,18 +74,16 @@ def main():
         data["Part Number"] = st.text_input('Part Number')
         
         if data["Part Number"] == "RS-T440-1":
+            image = "images/amcor.png"
+          
             data["Item Number"] = st.text_input('Item No')
             data["Roll No"] = st.text_input('Roll Number')
             data["Batch Number"] = st.text_input('Batch Number')
             data["MSI"] = st.text_input('MSI')
             data["PO Number"] = st.text_input('PO No')
-
-            image = "images/amcor.png"
-            image_path = f"temp_image.{image.type.split('/')[-1]}"
             
         else:
             image = "images/oliver.png"
-            image_path = f"temp_image.{image.type.split('/')[-1]}"
         
             data["PO Number"] = st.text_input('PO Number')
             data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
@@ -91,15 +94,9 @@ def main():
             data["HU ID"] = id[10:]
         
         submit = st.button("Submit")
-        with open(image, "wb") as f:
-              f.write(image.getbuffer())
       
         if submit:
-            pdf_filename = generate_pdf(data, image_path, 155, 130)
-
-            with open(pdf_filename, 'rb') as f:
-              pdf_bytes = f.read()
-              st.write(pdf_bytes)
+            pdf_path = generate_pdf(data, image, 155, 130)
               
             st.success('Table printed successfully!')
                 
