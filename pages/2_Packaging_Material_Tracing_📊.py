@@ -79,7 +79,7 @@ def main():
         data["Part Number"] = st.text_input('Part Number')
         
         if data["Part Number"] == "RS-T440-1":
-            image = "images\amcor.png"
+            image = "images/amcor.png"
             data["Item Number"] = st.text_input('Item No')
             data["Roll No"] = st.text_input('Roll Number')
             data["Batch Number"] = st.text_input('Batch Number')
@@ -87,7 +87,7 @@ def main():
             data["PO Number"] = st.text_input('PO No')
             
         else:
-            image = "images\oliver.png"
+            image = "images/oliver.png"
         
             data["PO Number"] = st.text_input('PO Number')
             data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
@@ -104,7 +104,7 @@ def main():
             st.success('Table printed successfully!')
                 
     elif material_type == 'Soft Pack':
-        image = "images\amcor.png"
+        image = "images/amcor.png"
         data["Item Number"] = st.text_input('Item No')
         data["Roll No"] = st.text_input('Roll Number')
         data["Batch Number"] = st.text_input('Batch Number')
@@ -118,7 +118,7 @@ def main():
             st.success('Table printed successfully!')
         
     else:
-        image = "images\primex.png"
+        image = "images/primex.png"
         item_number = 'RS-H460-2'
         st.subheader(f"Part Number: {item_number}")
         data["Item Number"] = item_number
