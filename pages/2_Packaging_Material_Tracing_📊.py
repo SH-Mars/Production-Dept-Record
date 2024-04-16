@@ -1,23 +1,18 @@
 import streamlit as st
 from reportlab.lib import colors
 from reportlab.platypus import SimpleDocTemplate, Image, Table, TableStyle
-from reportlab.lib.styles import getSampleStyleSheet
-
-import tempfile
+import io
 import base64
 
 
 # generate PDF file for label printint
-def generate_pdf(image_path, user_data, image_width, image_height):
-  
-    # create a temporary file in memory
-    temp_file = tempfile.NamedTemporaryFile(delete=False)
-    temp_file_path = temp_file.name
+def generate_pdf(image_path, user_data, image_width=135, image_height=115):
+    
+    buffer = io.BytesIO()
     
     # create a pdf document
     custom_page_size = (500, 500)
-    doc = SimpleDocTemplate(temp_file_path, pagesize=custom_page_size, topMargin=10, bottomMargin=0)
-    styles = getSampleStyleSheet()
+    doc = SimpleDocTemplate(buffer, pagesize=custom_page_size, topMargin=10, bottomMargin=0)
     
     # define the content
     content = []
@@ -31,8 +26,8 @@ def generate_pdf(image_path, user_data, image_width, image_height):
         data.append([key, value])
         
     table = Table(data)
-    table_style = TableStyle([('BACKGROUND', (0,0), (-1,0), colors.lightgrey),
-                              ('TEXTCOLOR', (0,0), (-1,0), colors.black),
+    table_style = TableStyle([('BACKGROUND', (0,0), (-1,0), colors.grey),
+                              ('TEXTCOLOR',(0,0),(-1,0),colors.whitesmoke),
                               ('ALIGN', (0,0), (-1,-1), 'CENTER'),  # Alignment
                               ('VALIGN', (0,0), (-1,-1), 'MIDDLE'),  # Vertical alignment
                               ('FONTNAME', (0,0), (-1,-1), 'Helvetica-Bold'),
@@ -45,24 +40,11 @@ def generate_pdf(image_path, user_data, image_width, image_height):
                               ('ROTATE', (0,0), (-1,-1), 90)])
     
     table.setStyle(table_style)
-    
     content.append(table)
     
-    # build the PDF
     doc.build(content)
-    
-    # read the content of the temporary file
-    with open(temp_file_path, 'rb') as f:
-        pdf_bytes = f.read()
-        
-    # delete the temporary file
-    temp_file.close()
-    
-    # Show PDF as base64 encoded string
-    pdf_base64 = base64.b64encode(pdf_bytes).decode('utf-8')
-    pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="1000" type="application/pdf">'
-    st.markdown(pdf_display, unsafe_allow_html=True)
-    
+    buffer.seek(0)
+    return buffer
 
 # Streamlit App
 def main():
@@ -79,15 +61,14 @@ def main():
         data["Part Number"] = st.text_input('Part Number')
         
         if data["Part Number"] == "RS-T440-1":
-            image = "images/amcor.png"
-            data["Item Number"] = st.text_input('Item No')
+            image_path = "images/amcor.png"
             data["Roll No"] = st.text_input('Roll Number')
             data["Batch Number"] = st.text_input('Batch Number')
             data["MSI"] = st.text_input('MSI')
             data["PO Number"] = st.text_input('PO No')
             
         else:
-            image = "images/oliver.png"
+            image_path = "images/oliver.png"
         
             data["PO Number"] = st.text_input('PO Number')
             data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
@@ -100,11 +81,17 @@ def main():
         submit = st.button("Submit")
         
         if submit:
-            generate_pdf(image, data, 155, 130)
-            st.success('Table printed successfully!')
+            
+            st.info("Generating PDF...")
+            pdf_buffer = generate_pdf(image_path, data, 135, 115)
+            
+            pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+            pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
+            st.markdown(pdf_display, unsafe_allow_html=True)
+            st.success('PDF generated successfully!')
                 
     elif material_type == 'Soft Pack':
-        image = "images/amcor.png"
+        image_path = "images/amcor.png"
         data["Item Number"] = st.text_input('Item No')
         data["Roll No"] = st.text_input('Roll Number')
         data["Batch Number"] = st.text_input('Batch Number')
@@ -114,11 +101,16 @@ def main():
         submit = st.button("Submit")
         
         if submit:
-            generate_pdf(image, data, 135, 95)
-            st.success('Table printed successfully!')
+            st.info("Generating PDF...")
+            pdf_buffer = generate_pdf(image_path, data)
+            
+            pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+            pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
+            st.markdown(pdf_display, unsafe_allow_html=True)
+            st.success('PDF generated successfully!')
         
     else:
-        image = "images/primex.png"
+        image_path = "images/primex.png"
         item_number = 'RS-H460-2'
         st.subheader(f"Part Number: {item_number}")
         data["Item Number"] = item_number
@@ -131,9 +123,14 @@ def main():
         submit = st.button("Submit")
 
         if submit:
-            generate_pdf(image, data, 150, 120)
-            st.success('Table printed successfully!')
-
+            st.info("Generating PDF...")
+            pdf_buffer = generate_pdf(image_path, data)
+            
+            pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+            pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
+            st.markdown(pdf_display, unsafe_allow_html=True)
+            st.success('PDF generated successfully!')
+            
 if __name__ == "__main__":
     table_data = []  # Initialize table data
     main()
