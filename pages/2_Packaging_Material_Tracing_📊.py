@@ -4,6 +4,20 @@ from reportlab.platypus import SimpleDocTemplate, Image, Table, TableStyle
 import io
 import base64
 
+# -----------------------------------------------------------------
+# Login
+def login():
+    st.subheader("Login")
+    username = st.text_input("Username")
+    password = st.text_input("password", type='password')
+    login_button = st.button("Login")
+    
+    if login_button:
+        if username == st.secrets["login_username"] and password == st.secrets["login_password"]:
+            st.session_state.logged_in = True
+        else:
+            st.error("Invalid credentials")
+# ------------------------------------------------------------------
 
 # generate PDF file for label printint
 def generate_pdf(image_path, user_data, image_width=135, image_height=115):
@@ -45,91 +59,107 @@ def generate_pdf(image_path, user_data, image_width=135, image_height=115):
     doc.build(content)
     buffer.seek(0)
     return buffer
+# ------------------------------------------------------------------
 
 # Streamlit App
 def main():
+    
+    # Basic layout of the page
     st.set_page_config(page_title='Packaging Roll Material Record Tracing 📊')
-    st.title("Production Order Record Attachment")
+    st.title("Packaging Roll Material Record Tracing 📊")
+    st.subheader("Production Order Record Attachment")
+    st.write("")
+    st.write("")
     
-    options = ['Tyvek', 'Soft Pack', 'Rigid Tray']
-    material_type = st.radio('Material Type', options)
+    if "logged_in" not in st.session_state:
+        st.session_state.logged_in = False
     
-    data = {}
+    if not st.session_state.logged_in:
+        login()
     
-    # Input fields
-    if material_type == 'Tyvek':
-        data["Part Number"] = st.text_input('Part Number')
+    else:
+        st.write(r"$\textsf{\Large Select the Material Type}$")
+        options = ['Tyvek', 'Soft Pack', 'Rigid Tray']
+        material_type = st.radio('Material Type', options)
+        st.write("")
+        data = {}
         
-        if data["Part Number"] == "RS-T440-1":
+        st.write(r"$\textsf{\Large Scan the Barcode on the Roll Packaging Label Accordingly}$")
+    
+        # Input fields
+        if material_type == 'Tyvek':
+            data["Part Number"] = st.text_input('Part Number')
+        
+            if data["Part Number"] == "RS-T440-1":
+                image_path = "images/amcor.png"
+                data["Roll No"] = st.text_input('Roll Number')
+                data["Batch Number"] = st.text_input('Batch Number')
+                data["MSI"] = st.text_input('MSI')
+                data["PO Number"] = st.text_input('PO No')
+            
+            else:
+                image_path = "images/oliver.png"
+        
+                data["PO Number"] = st.text_input('PO Number')
+                data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
+                data["Sales Order"] = st.text_input('Sales Order')
+                data["Material Number"] = st.text_input('Material #')
+                data["Mfg Date"] = st.text_input('Mfg Date')
+                id = st.text_input('HU ID')
+                data["HU ID"] = id[10:]
+        
+            submit = st.button("Submit")
+        
+            if submit:
+            
+                st.info("Generating PDF...")
+                pdf_buffer = generate_pdf(image_path, data, 135, 115)
+            
+                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+                pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+                st.success('PDF generated successfully!')
+                
+        elif material_type == 'Soft Pack':
             image_path = "images/amcor.png"
+            data["Item Number"] = st.text_input('Item No')
             data["Roll No"] = st.text_input('Roll Number')
             data["Batch Number"] = st.text_input('Batch Number')
             data["MSI"] = st.text_input('MSI')
             data["PO Number"] = st.text_input('PO No')
+        
+            submit = st.button("Submit")
+        
+            if submit:
+                st.info("Generating PDF...")
+                pdf_buffer = generate_pdf(image_path, data)
             
+                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+                pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+                st.success('PDF generated successfully!')
+        
         else:
-            image_path = "images/oliver.png"
+            image_path = "images/primex.png"
+            item_number = 'RS-H460-2'
+            st.subheader(f"Part Number: {item_number}")
+            data["Item Number"] = item_number
+            info = st.text_input('Scan Barcode')
         
-            data["PO Number"] = st.text_input('PO Number')
-            data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
-            data["Sales Order"] = st.text_input('Sales Order')
-            data["Material Number"] = st.text_input('Material #')
-            data["Mfg Date"] = st.text_input('Mfg Date')
-            id = st.text_input('HU ID')
-            data["HU ID"] = id[10:]
+            if info != "":
+                data["Order No"] = info.split(sep='  ')[0]
+                data["Roll #"] = info.split(sep='  ')[1]
         
-        submit = st.button("Submit")
-        
-        if submit:
-            
-            st.info("Generating PDF...")
-            pdf_buffer = generate_pdf(image_path, data, 135, 115)
-            
-            pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-            pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
-            st.markdown(pdf_display, unsafe_allow_html=True)
-            st.success('PDF generated successfully!')
-                
-    elif material_type == 'Soft Pack':
-        image_path = "images/amcor.png"
-        data["Item Number"] = st.text_input('Item No')
-        data["Roll No"] = st.text_input('Roll Number')
-        data["Batch Number"] = st.text_input('Batch Number')
-        data["MSI"] = st.text_input('MSI')
-        data["PO Number"] = st.text_input('PO No')
-        
-        submit = st.button("Submit")
-        
-        if submit:
-            st.info("Generating PDF...")
-            pdf_buffer = generate_pdf(image_path, data)
-            
-            pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-            pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
-            st.markdown(pdf_display, unsafe_allow_html=True)
-            st.success('PDF generated successfully!')
-        
-    else:
-        image_path = "images/primex.png"
-        item_number = 'RS-H460-2'
-        st.subheader(f"Part Number: {item_number}")
-        data["Item Number"] = item_number
-        info = st.text_input('Scan Barcode')
-        
-        if info != "":
-            data["Order No"] = info.split(sep='  ')[0]
-            data["Roll #"] = info.split(sep='  ')[1]
-        
-        submit = st.button("Submit")
+            submit = st.button("Submit")
 
-        if submit:
-            st.info("Generating PDF...")
-            pdf_buffer = generate_pdf(image_path, data)
+            if submit:
+                st.info("Generating PDF...")
+                pdf_buffer = generate_pdf(image_path, data)
             
-            pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-            pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
-            st.markdown(pdf_display, unsafe_allow_html=True)
-            st.success('PDF generated successfully!')
+                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+                pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="500" type="application/pdf">'
+                st.markdown(pdf_display, unsafe_allow_html=True)
+                st.success('PDF generated successfully!')
             
 if __name__ == "__main__":
     table_data = []  # Initialize table data
