@@ -68,7 +68,7 @@ def clear_barcode():
 def main():
     # Basic layout of the page
     st.set_page_config(page_title='Exp Date Verification ✔️')
-    st.title('Expiration Date Validation ✔️')
+    st.title('Expiration Date Verification ✔️')
     st.write("")
     
     if "logged_in" not in st.session_state:
@@ -116,9 +116,9 @@ def main():
 # ------------------------------------------------------------------
         email_sender = st.secrets["email_sender"]
         password = st.secrets["password"]
-        subject = 'Label Expiration Date Validation Failed'
+        subject = 'Label Expiration Date Verification Failed'
         body = f"""
-        A First Piece Label Expiration Date Validation of Lot {lot} just failed. 
+        A First Piece Label Expiration Date Verification of Lot {lot} just failed. 
         Please double check with the Production Dept to ensure the accuracy.
         """
         email_receiver = st.secrets["email_receiver"]
@@ -135,7 +135,7 @@ def main():
             elif barcode != "" and exp == corr_exp:
                 if_pass = "Yes"
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
-                st.success(f"Validation successful!")
+                st.success(f"Verification successful!")
 
                 new_record = {'scan_time': scan_time, 'item_gtin': gtin, 'lot': lot, 'exp_date': exp, 'if_pass': if_pass}
                 collection.insert_one(new_record)
