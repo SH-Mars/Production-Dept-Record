@@ -69,6 +69,7 @@ def main():
     # Basic layout of the page
     st.set_page_config(page_title='Exp Date Verification ✔️')
     st.title('Expiration Date Validation ✔️')
+    st.write("")
     
     if "logged_in" not in st.session_state:
         st.session_state.logged_in = False
@@ -77,7 +78,7 @@ def main():
         login()
     
     else:
-        st.write('Scan the barcode on the Case Label')
+        st.write(r"$\textsf{\Large Scan the barcode on the Case Label}$")
         
         placeholder = st.empty()
         barcode = placeholder.text_input('Barcode', key='Barcode')
@@ -115,7 +116,7 @@ def main():
 # ------------------------------------------------------------------
         email_sender = st.secrets["email_sender"]
         password = st.secrets["password"]
-        subject = '❗Label Expiration Date Validation Failed⚠️'
+        subject = 'Label Expiration Date Validation Failed'
         body = f"""
         A First Piece Label Expiration Date Validation of Lot {lot} just failed. 
         Please double check with the Production Dept to ensure the accuracy.
