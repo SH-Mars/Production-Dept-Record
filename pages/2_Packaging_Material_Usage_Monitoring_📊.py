@@ -65,8 +65,8 @@ def generate_pdf(image_path, user_data, image_width=135, image_height=115):
 def main():
     
     # Basic layout of the page
-    st.set_page_config(page_title='Packaging Roll Material Record Tracing 📊')
-    st.title("Packaging Roll Material Record Tracing 📊")
+    st.set_page_config(page_title='Packaging Roll Material Usage Monitoring 📊')
+    st.title("Packaging Roll Material Usage Monitoring 📊")
     st.subheader("Production Order Record Attachment")
     st.write("")
     st.write("")
