@@ -131,6 +131,9 @@ def main():
                 
             elif gtin == "None" or lot == "None" or exp == "None":
                 st.warning('Please clear out and make sure to scan the barcode properly then try again.')
+
+            elif len(lot) != 4:
+                st.warning('Please check the Lot Number on the label.')
                 
             elif barcode != "" and exp == corr_exp:
                 if_pass = "Yes"
