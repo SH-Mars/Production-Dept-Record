@@ -84,9 +84,9 @@ def main():
         barcode = placeholder.text_input('Barcode', key='Barcode')
 
         # Define patterns for each number you want to extract
-        gtin_pattern = re.compile(r'\(01\)(\d+)')
-        exp_pattern = re.compile(r'\(17\)(\d+)')
-        lot_pattern = re.compile(r'\(10\)(\d+)')
+        gtin_pattern = re.compile(r'\(01\)(\d{14})')
+        exp_pattern = re.compile(r'\(17\)(\d{6})')
+        lot_pattern = re.compile(r'\(10\)([\d,\.]+)$')
 
         # Use findall to extract the numbers    
         result_1 = re.findall(gtin_pattern, barcode)
@@ -94,14 +94,9 @@ def main():
         result_3 = re.findall(lot_pattern, barcode)
 
         # Convert the results to integers
-        gtin = int(result_1[0]) if result_1 else None
-        exp = int(result_2[0]) if result_2 else None
-        lot = int(result_3[0]) if result_3 else None
-
-        # Convert to text
-        gtin = str(gtin)
-        exp = str(exp)
-        lot = str(lot)
+        gtin = str(result_1[0]) if result_1 else None
+        exp = str(result_2[0]) if result_2 else None
+        lot = str(result_3[0]) if result_3 else None
 
         # Get today date
         today = dt.date.today()
@@ -124,16 +119,25 @@ def main():
         email_receiver = st.secrets["email_receiver"]
 # ------------------------------------------------------------------
         if_pass = ""
+        lot_check = False
 
         if check_button:
+            # Check if the Lot Number could be convert to int
+            if not lot_check:
+                try:
+                    int(lot)
+                    lot_check=True
+                except:
+                    st.warning('Please check if there is typo in Lot Number.', icon="⚠️")
+            
             if barcode == "":
-                st.warning('Please scan the barcode before clicking Check button.')
+                st.warning('Please scan the barcode before clicking Check button.', icon="⚠️")
                 
             elif gtin == "None" or lot == "None" or exp == "None":
-                st.warning('Please clear out and make sure to scan the barcode properly then try again.')
-
+                st.warning('Please clear out and make sure to scan the barcode properly then try again.', icon="⚠️")
+            
             elif len(lot) != 4:
-                st.warning('Please check the Lot Number on the label.')
+                st.warning('Please check the Lot Number on the label.', icon="⚠️")
                 
             elif barcode != "" and exp == corr_exp:
                 if_pass = "Yes"
