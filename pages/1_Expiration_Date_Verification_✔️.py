@@ -119,16 +119,8 @@ def main():
         email_receiver = st.secrets["email_receiver"]
 # ------------------------------------------------------------------
         if_pass = ""
-        lot_check = False
 
         if check_button:
-            # Check if the Lot Number could be convert to int
-            if not lot_check:
-                try:
-                    int(lot)
-                    lot_check=True
-                except:
-                    st.warning('Please check if there is typo in Lot Number.', icon="⚠️")
             
             if barcode == "":
                 st.warning('Please scan the barcode before clicking Check button.', icon="⚠️")
@@ -136,9 +128,9 @@ def main():
             elif gtin == "None" or lot == "None" or exp == "None":
                 st.warning('Please clear out and make sure to scan the barcode properly then try again.', icon="⚠️")
             
-            elif len(lot) != 4:
-                st.warning('Please check the Lot Number on the label.', icon="⚠️")
-                
+            elif (lot.isdigit() == False) or (len(lot)!= 4):
+                st.warning('Please check the Lot Number, if there is a typo or extra character.', icon="⚠️")
+            
             elif barcode != "" and exp == corr_exp:
                 if_pass = "Yes"
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
