@@ -94,9 +94,9 @@ def main():
         result_3 = re.findall(lot_pattern, barcode)
 
         # Convert the results to integers
-        gtin = str(result_1[0]) if result_1 else None
-        exp = str(result_2[0]) if result_2 else None
-        lot = str(result_3[0]) if result_3 else None
+        gtin = str(result_1[0]) if result_1 != [] else None
+        exp = str(result_2[0]) if result_2 != [] else None
+        lot = str(result_3[0]) if result_3 != [] else None
 
         # Get today date
         today = dt.date.today()
