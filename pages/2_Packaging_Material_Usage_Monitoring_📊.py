@@ -111,14 +111,14 @@ def main():
                 data["Roll No"] = st.text_input('Roll Number')
                 data["Batch Number"] = st.text_input('Batch Number')
                 data["MSI"] = st.text_input('MSI')
-                data["PO Number"] = st.text_input('PO No')
+                # data["PO Number"] = st.text_input('PO No')
             
             else:
                 image_path = "images/oliver.png"
                 data["Scan Time"] = dt.datetime.now(tz=tzInfo).strftime('%Y-%m-%d %H:%M:%S')
-                data["PO Number"] = st.text_input('PO Number')
+                # data["PO Number"] = st.text_input('PO Number')
                 data["Part Desc"] = 'APLS 440mm 0C SL 1059B/27HT-2C'
-                data["Sales Order"] = st.text_input('Sales Order')
+                # data["Sales Order"] = st.text_input('Sales Order')
                 data["Material Number"] = st.text_input('Material #')
                 data["Mfg Date"] = st.text_input('Mfg Date')
                 data['Qty'] = st.text_input('Qty')
@@ -147,7 +147,7 @@ def main():
             data["Roll No"] = st.text_input('Roll Number')
             data["Batch Number"] = st.text_input('Batch Number')
             data["MSI"] = st.text_input('MSI')
-            data["PO Number"] = st.text_input('PO No')
+            # data["PO Number"] = st.text_input('PO No')
         
             submit = st.button("Submit")
         
