@@ -65,6 +65,13 @@ def clear_barcode():
 
 # ------------------------------------------------------------------
 
+def check_if_lot_exists(lot):
+    query = {"lot": lot}
+    result = collection.find_one(query)
+    return result
+
+# ------------------------------------------------------------------
+
 def main():
     # Basic layout of the page
     st.set_page_config(page_title='Exp Date Verification ✔️')
@@ -120,6 +127,8 @@ def main():
 # ------------------------------------------------------------------
         if_pass = ""
 
+        if_exist = check_if_lot_exists(lot)
+        
         if check_button:
             
             if barcode == "":
@@ -130,6 +139,9 @@ def main():
             
             elif (lot.isdigit() == False) or (len(lot)!= 4):
                 st.warning('Please check the Lot Number, if there is a typo or extra character.', icon="⚠️")
+
+            elif if_exist:
+                st.warning(f'{lot} has been scanned before, please verify the Lot Number or check with QA.', icon="⚠️")
             
             elif barcode != "" and exp == corr_exp:
                 if_pass = "Yes"
@@ -161,7 +173,7 @@ def main():
         show_data = st.button('Previous Data')
 
         if show_data:
-            df = pd.DataFrame(list(collection.find()))
+            df = pd.DataFrame(list(collection.find().sort("scan_time", -1).limit(10)))
             st.dataframe(df)
                 
         #for row in result:
