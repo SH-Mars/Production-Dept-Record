@@ -67,10 +67,12 @@ def clear_barcode():
 
 def check_if_lot_exists(lot):
     query = {"lot": lot}
-    result = collection.find_one(query)
+    result = collection.find(query).sort('scan_time', DESCENDING).limit(1)
     
-    if result:
-        return result.get("if_pass", "No data found")
+    document = next(result, None)
+    
+    if document:
+        return document.get("if_pass", "No data found")
 
 # ------------------------------------------------------------------
 
@@ -143,7 +145,7 @@ def main():
                 st.warning('Please check the Lot Number, if there is a typo or extra character.', icon="⚠️")
 
             elif if_exist == "Yes":
-                st.warning(f'{lot} has been successfully scanned before, please verify the Lot Number or check with QA. Do not perform multiple scanning.', icon="⚠️")
+                st.warning(f'{lot} has been successfully scanned before, please do not perform multiple scanning on the same Lot. Any question, please verify the Lot number or reach out to QA', icon="⚠️")
             
             elif barcode != "" and exp == corr_exp and if_exist == "No":
                 if_pass = "Yes"
