@@ -68,7 +68,9 @@ def clear_barcode():
 def check_if_lot_exists(lot):
     query = {"lot": lot}
     result = collection.find_one(query)
-    return result
+    
+    if result:
+        return result.get("if_pass", "No data found")
 
 # ------------------------------------------------------------------
 
@@ -140,10 +142,10 @@ def main():
             elif (lot.isdigit() == False) or (len(lot)!= 4):
                 st.warning('Please check the Lot Number, if there is a typo or extra character.', icon="⚠️")
 
-            elif if_exist:
-                st.warning(f'{lot} has been scanned before, please verify the Lot Number or check with QA.', icon="⚠️")
+            elif if_exist == "Yes":
+                st.warning(f'{lot} has been successfully scanned before, please verify the Lot Number or check with QA. Do not perform multiple scanning.', icon="⚠️")
             
-            elif barcode != "" and exp == corr_exp:
+            elif barcode != "" and exp == corr_exp and if_exist == "No":
                 if_pass = "Yes"
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
                 st.success(f"Verification successful!")
