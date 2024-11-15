@@ -74,6 +74,8 @@ def check_if_lot_exists(lot):
     
     if document:
         return document.get("if_pass", "No data found")
+    else:
+        return "No data found"
 
 # ------------------------------------------------------------------
 
@@ -106,9 +108,9 @@ def main():
         result_3 = re.findall(lot_pattern, barcode)
 
         # Convert the results to integers
-        gtin = str(result_1[0]) if result_1 != [] else None
-        exp = str(result_2[0]) if result_2 != [] else None
-        lot = str(result_3[0]) if result_3 != [] else None
+        gtin = str(result_1[0]) if result_1 else None
+        exp = str(result_2[0]) if result_2 else None
+        lot = str(result_3[0]) if result_3 else None
 
         # Get today date
         today = dt.date.today()
@@ -131,24 +133,34 @@ def main():
         email_receiver = st.secrets["email_receiver"]
 # ------------------------------------------------------------------
         if_pass = ""
-
-        if_exist = check_if_lot_exists(lot)
         
+        if_exist = check_if_lot_exists(lot)
+
         if check_button:
             
             if barcode == "":
                 st.warning('Please scan the barcode before clicking Check button.', icon="⚠️")
                 
-            elif gtin == None or lot == None or exp == None:
+            elif gtin == "None" or lot == "None" or exp == "None":
                 st.warning('Please clear out and make sure to scan the barcode properly then try again.', icon="⚠️")
             
             elif (lot.isdigit() == False) or (len(lot)!= 4):
                 st.warning('Please check the Lot Number, if there is a typo or extra character.', icon="⚠️")
-
+            
             elif if_exist == "Yes":
                 st.warning(f'{lot} has been successfully scanned before, please do not perform multiple scanning on the same Lot. Any question, please verify the Lot number or reach out to QA', icon="⚠️")
             
             elif barcode != "" and exp == corr_exp and if_exist == "No":
+                if_pass = "Yes"
+                st.markdown(f'✅ The label information of Lot: {lot} has been corrected and reentered reentered to the database.')
+                st.success(f"Verification successful!")
+
+                new_record = {'scan_time': scan_time, 'item_gtin': gtin, 'lot': lot, 'exp_date': exp, 'if_pass': if_pass}
+                collection.insert_one(new_record)
+                
+                st.success("Previous error has be successfully fixed!")
+                
+            elif barcode != "" and exp == corr_exp and if_exist == "No data found":
                 if_pass = "Yes"
                 st.markdown(f'✅ Lot: {lot} has the correct expiration date on the label.')
                 st.success(f"Verification successful!")
@@ -157,6 +169,7 @@ def main():
                 collection.insert_one(new_record)
                 
                 st.success("Data inserted successfully!")
+            
             else:
                 if_pass = "No"
                 st.warning('Double Check the Expiration Date', icon="⚠️")
