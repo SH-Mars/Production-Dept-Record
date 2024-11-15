@@ -152,7 +152,7 @@ def main():
             
             elif barcode != "" and exp == corr_exp and if_exist == "No":
                 if_pass = "Yes"
-                st.markdown(f'✅ The label information of Lot: {lot} has been corrected and reentered reentered to the database.')
+                st.markdown(f'✅ The label information of Lot# {lot} has been corrected and reentered to the database.')
                 st.success(f"Verification successful!")
 
                 new_record = {'scan_time': scan_time, 'item_gtin': gtin, 'lot': lot, 'exp_date': exp, 'if_pass': if_pass}
