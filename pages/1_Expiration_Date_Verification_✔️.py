@@ -6,6 +6,7 @@ import datetime as dt
 import smtplib as s
 import pymongo
 from pymongo import DESCENDING
+from dateutil.relativedelta import FR, relativedelta
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
@@ -66,6 +67,14 @@ def clear_barcode():
 
 # ------------------------------------------------------------------
 
+def next_weekday(d, weekday):
+    days_ahead = weekday - d.weekday()
+    if days_ahead <= 0:
+        days_ahead += 7
+    return d + dt.timedelta(days_ahead)
+
+# ------------------------------------------------------------------
+
 def check_if_lot_exists(lot):
     query = {"lot": lot}
     result = collection.find(query).sort('scan_time', DESCENDING).limit(1)
@@ -106,6 +115,7 @@ def main():
     
     else:
         st.write(r"$\textsf{\Large Scan the barcode on the Case Label}$")
+        checkbox = st.checkbox("Check if the label is preprinted at the end of the month, and the production will start next week, in the beginning of next month.")
         
         placeholder = st.empty()
         barcode = placeholder.text_input('Barcode', key='Barcode')
@@ -127,8 +137,14 @@ def main():
 
         # Get today date
         today = dt.date.today()
-
-        corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
+        if today == dt.date.today()+relativedelta(day=31, weekday=FR(-1)):
+            st.info("It's the end of the month, please remember to check the checkbox if the production of this Lot is going to be next month!")
+        
+        if checkbox:
+            mfg_date = next_weekday(today)
+            corr_exp = dt.date(mfg_date.year + 3, mfg_date.month, 1).strftime('%y%m%d')
+        else:
+            corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
         
         tzInfo = pytz.timezone('America/Los_Angeles')
         scan_time = dt.datetime.now(tz=tzInfo).strftime('%Y-%m-%d %H:%M:%S')
