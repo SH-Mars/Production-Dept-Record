@@ -79,6 +79,19 @@ def check_if_lot_exists(lot):
 
 # ------------------------------------------------------------------
 
+def check_exists_exp(lot):
+    query = {"lot": lot}
+    result = collection.find(query).sort('scan_time', DESCENDING).limit(1)
+    
+    document = next(result, None)
+    
+    if document:
+        return document.get("exp_date", "No data found")
+    else:
+        return "No data found"
+
+# ------------------------------------------------------------------
+
 def main():
     # Basic layout of the page
     st.set_page_config(page_title='Exp Date Verification ✔️')
@@ -148,11 +161,18 @@ def main():
                 st.warning('Please check the Lot Number, if there is a typo or extra character.', icon="⚠️")
             
             elif if_exist == "Yes":
-                st.warning(f'{lot} has been successfully scanned before, please do not perform multiple scanning on the same Lot. Any question, please verify the Lot number or reach out to QA', icon="⚠️")
+                pre_exp_date = check_exists_exp(lot)
+                if pre_exp_date == exp:
+                    st.warning(f'{lot} has been successfully scanned before, please do not perform multiple scanning on the same Lot.' , icon="⚠️")
+                else:
+                    st.error(f"Lot# {lot} has been scanned previously with exp date {pre_exp_date}, which does not match with current scanned {exp}.")
+                    for person in email_receiver:
+                        receiver = person
+                        email_notification(email_sender, password, subject, body, receiver)
             
             elif barcode != "" and exp == corr_exp and if_exist == "No":
                 if_pass = "Yes"
-                st.markdown(f'✅ The label information of Lot# {lot} has been corrected and reentered to the database.')
+                st.markdown(f'✅ The label information of Lot: {lot} has been corrected and reentered reentered to the database.')
                 st.success(f"Verification successful!")
 
                 new_record = {'scan_time': scan_time, 'item_gtin': gtin, 'lot': lot, 'exp_date': exp, 'if_pass': if_pass}
