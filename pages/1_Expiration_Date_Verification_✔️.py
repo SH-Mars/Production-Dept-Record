@@ -201,7 +201,7 @@ Please double check with the Production Dept to ensure the accuracy.
                 new_record = {'scan_time': scan_time, 'item_gtin': gtin, 'lot': lot, 'exp_date': exp, 'if_pass': if_pass}
                 collection.insert_one(new_record)
                 
-                st.success("Previous error has be successfully fixed!")
+                st.success("Previous error has been successfully fixed!")
                 
             elif barcode != "" and exp == corr_exp and if_exist == "No data found":
                 if_pass = "Yes"
