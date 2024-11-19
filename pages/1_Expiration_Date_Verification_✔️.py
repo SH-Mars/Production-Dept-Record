@@ -168,8 +168,8 @@ def main():
                     st.error(f"Lot# {lot} has been scanned previously with exp date {pre_exp_date}, which does not match with current scanned {exp}.")
                     
                     body = f"""
-            Production has performmed a label scanning for Expiration Date Verification on the second batch of printed labels of Lot {lot}, which expiration date does not match with previous one.
-            Please double check with the Production Dept to ensure the accuracy.
+Production has performmed a label scanning for Expiration Date Verification on the second batch of printed labels of Lot {lot}, which expiration date {exp} does not match with previous one {pre_exp_date}.
+Please double check with the Production Dept to ensure the accuracy.
                             """
                     for person in email_receiver:
                         receiver = person
