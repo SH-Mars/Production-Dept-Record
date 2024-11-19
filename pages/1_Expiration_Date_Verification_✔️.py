@@ -166,6 +166,11 @@ def main():
                     st.warning(f'{lot} has been successfully scanned before, please do not perform multiple scanning on the same Lot.' , icon="⚠️")
                 else:
                     st.error(f"Lot# {lot} has been scanned previously with exp date {pre_exp_date}, which does not match with current scanned {exp}.")
+                    
+                    body = f"""
+                            Production has performmed a label scanning for Expiration Date Verification on the second batch of printed labels of Lot {lot}, which expiration date does not match with previous one.
+                            Please double check with the Production Dept to ensure the accuracy.
+                            """
                     for person in email_receiver:
                         receiver = person
                         email_notification(email_sender, password, subject, body, receiver)
