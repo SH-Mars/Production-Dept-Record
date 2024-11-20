@@ -135,8 +135,7 @@ def main():
         lot = str(result_3[0]) if result_3 else None
 
         # Get today date
-        today = dt.date(2024, 11, 29)
-        # today = dt.date.today()
+        today = dt.date.today()
         
         if (today+relativedelta(day=31) - today) <= dt.timedelta(days=2) and today.weekday() == 4:
             st.info("It's the end of the month, please remember to check the checkbox if the production of this Lot is going to be next month!")
