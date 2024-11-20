@@ -135,13 +135,14 @@ def main():
         lot = str(result_3[0]) if result_3 else None
 
         # Get today date
-        today = dt.date.today()
+        today = dt.date(2024, 11, 29)
+        # today = dt.date.today()
         
-        if today == dt.date.today()+relativedelta(day=31, weekday=FR(-1)):
+        if (today+relativedelta(day=31) - today) <= dt.timedelta(days=2) and today.weekday() == 4:
             st.info("It's the end of the month, please remember to check the checkbox if the production of this Lot is going to be next month!")
             checkbox = st.checkbox("Check if the label is preprinted at the end of the month, and the production will start next week, in the beginning of next month.")
             if checkbox:
-                mfg_date = next_weekday(today)
+                mfg_date = next_weekday(today, 0)
                 corr_exp = dt.date(mfg_date.year + 3, mfg_date.month, 1).strftime('%y%m%d')
             else:
                 corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
@@ -195,13 +196,13 @@ Please double check with the Production Dept to ensure the accuracy.
             
             elif barcode != "" and exp == corr_exp and if_exist == "No":
                 if_pass = "Yes"
-                st.markdown(f'✅ The label information of Lot: {lot} has been corrected and reentered to the database.')
+                st.markdown(f'✅ The label information of Lot: {lot} has been corrected and reentered reentered to the database.')
                 st.success(f"Verification successful!")
 
                 new_record = {'scan_time': scan_time, 'item_gtin': gtin, 'lot': lot, 'exp_date': exp, 'if_pass': if_pass}
                 collection.insert_one(new_record)
                 
-                st.success("Previous error has been successfully fixed!")
+                st.success("Previous error has be successfully fixed!")
                 
             elif barcode != "" and exp == corr_exp and if_exist == "No data found":
                 if_pass = "Yes"
