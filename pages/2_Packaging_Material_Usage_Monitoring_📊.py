@@ -133,7 +133,7 @@ def main():
                 pdf_buffer = generate_pdf(image_path, data, 135, 115)
             
                 pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="700" type="application/pdf">'
+                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
                 st.markdown(pdf_display, unsafe_allow_html=True)
                 st.success('PDF generated successfully!')
 
@@ -156,7 +156,7 @@ def main():
                 pdf_buffer = generate_pdf(image_path, data)
             
                 pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="700" type="application/pdf">'
+                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
                 st.markdown(pdf_display, unsafe_allow_html=True)
                 st.success('PDF generated successfully!')
 
@@ -182,7 +182,7 @@ def main():
                 pdf_buffer = generate_pdf(image_path, data)
             
                 pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                pdf_display = f'<embed src="data:application/pdf;base64,{pdf_base64}" width="700" height="700" type="application/pdf">'
+                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
                 st.markdown(pdf_display, unsafe_allow_html=True)
                 st.success('PDF generated successfully!')
 
