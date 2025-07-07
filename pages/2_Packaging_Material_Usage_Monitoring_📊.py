@@ -25,7 +25,6 @@ def login():
 username = st.secrets["mongo_username"]
 password = st.secrets["mongo_password"]
 CONNECTION_STRING = f"mongodb+srv://{username}:{password}@cluster.89jetih.mongodb.net/"
-
 client = pymongo.MongoClient(CONNECTION_STRING)
 db = client["first_label_scan"]
 collection = db['packaging_material']
@@ -33,8 +32,12 @@ collection = db['packaging_material']
 # ------------------------------------------------------------------
 # generate PDF file for label printint
 def generate_pdf(image_path, user_data, image_width=135, image_height=115):
-    
     buffer = io.BytesIO()
+
+    # check if image exists
+    if not os.path.exists(image_path):
+        st.error(f"Image not found: {image_path}")
+        return None
     
     # create a pdf document
     custom_page_size = (500, 500)
@@ -43,7 +46,6 @@ def generate_pdf(image_path, user_data, image_width=135, image_height=115):
     # define the content
     content = []
     image = Image(image_path, width=image_width, height=image_height)
-    image.rotate = 90
     content.append(image)
     
     # add data as a table
@@ -63,7 +65,8 @@ def generate_pdf(image_path, user_data, image_width=135, image_height=115):
                               ('GRID', (0,0), (-1,-1), 1, colors.black),
                               ('BOTTOMPADDING', (0, 0), (-1, -1), 5),
                               ('BOTTOMPADDING', (0, 0), (-1, 0), 12),
-                              ('ROTATE', (0,0), (-1,-1), 90)])
+                              # ('ROTATE', (0,0), (-1,-1), 90)
+                        ])
     
     table.setStyle(table_style)
     content.append(table)
@@ -124,21 +127,6 @@ def main():
                 data['Qty'] = st.text_input('Qty')
                 id = st.text_input('HU ID')
                 data["HU ID"] = id[10:]
-        
-            submit = st.button("Submit")
-        
-            if submit:
-            
-                st.info("Generating PDF...")
-                pdf_buffer = generate_pdf(image_path, data, 135, 115)
-            
-                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
-                st.success('PDF generated successfully!')
-
-                # insert record into db
-                collection.insert_one(data)
                 
         elif material_type == 'Soft Pack':
             image_path = "images/amcor.png"
@@ -149,20 +137,6 @@ def main():
             data["MSI"] = st.text_input('MSI')
             # data["PO Number"] = st.text_input('PO No')
         
-            submit = st.button("Submit")
-        
-            if submit:
-                st.info("Generating PDF...")
-                pdf_buffer = generate_pdf(image_path, data)
-            
-                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
-                st.success('PDF generated successfully!')
-
-                # insert record into db
-                collection.insert_one(data)
-        
         else:
             image_path = "images/primex.png"
             item_number = 'RS-H460-2'
@@ -172,22 +146,41 @@ def main():
             info = st.text_input('Scan Barcode')
         
             if info != "":
-                data["Order No"] = info.split(sep='  ')[0]
-                data["Roll #"] = info.split(sep='  ')[1]
+                parts = info.split(sep='  ')
+                if len(parts) >= 2:
+                    data["Order No"] = parts[0]
+                    data["Roll #"] = parts[1]
         
             submit = st.button("Submit")
 
             if submit:
                 st.info("Generating PDF...")
                 pdf_buffer = generate_pdf(image_path, data)
+                
+                if pdf_buffer:
+                    pdf_size = len(pdf_buffer.getvalue())
+                    st.write(f"PDF size: {pdf_size} bytes")
             
-                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
-                st.markdown(pdf_display, unsafe_allow_html=True)
-                st.success('PDF generated successfully!')
+                    pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+                    st.code(pdf_base64[:100])
+                    
+                    pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
+                    st.markdown(pdf_display, unsafe_allow_html=True)
 
-                # insert record into db
-                collection.insert_one(data)
+                    # optional fallback download
+                    st.download_button(
+                        label="Download PDF",
+                        data=pdf_buffer.getvalue(),
+                        file_name="label.pdf",
+                        mime="application/pdf"
+                    )
+                    
+                    st.success('PDF generated successfully!')
+
+                    # insert record into db
+                    collection.insert_one(data)
+                else:
+                    st.error("PDF generation failed due to missing image or data.")
             
 if __name__ == "__main__":
     table_data = []  # Initialize table data
