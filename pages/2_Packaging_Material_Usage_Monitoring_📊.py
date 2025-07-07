@@ -158,6 +158,7 @@ def main():
             
                     pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
                     st.code(pdf_base64[:100])
+                    pdf_buffer.seek(0)
                     
                     pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
                     st.markdown(pdf_display, unsafe_allow_html=True)
