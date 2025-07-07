@@ -146,36 +146,36 @@ def main():
                     data["Order No"] = parts[0]
                     data["Roll #"] = parts[1]
         
-            submit = st.button("Submit")
+        submit = st.button("Submit")
 
-            if submit:
-                st.info("Generating PDF...")
-                pdf_buffer = generate_pdf(image_path, data)
+        if submit:
+            st.info("Generating PDF...")
+            pdf_buffer = generate_pdf(image_path, data)
                 
-                if pdf_buffer:
-                    pdf_size = len(pdf_buffer.getvalue())
-                    st.write(f"PDF size: {pdf_size} bytes")
+            if pdf_buffer:
+                pdf_size = len(pdf_buffer.getvalue())
+                st.write(f"PDF size: {pdf_size} bytes")
             
-                    pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
-                    st.code(pdf_base64[:100])
-                    pdf_buffer.seek(0)
+                pdf_base64 = base64.b64encode(pdf_buffer.read()).decode('utf-8')
+                st.code(pdf_base64[:100])
+                pdf_buffer.seek(0)
                     
-                    pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
-                    st.markdown(pdf_display, unsafe_allow_html=True)
+                pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
+                st.markdown(pdf_display, unsafe_allow_html=True)
 
-                    st.download_button(
-                        label="📄 Download PDF",
-                        data=pdf_buffer.getvalue(),
-                        file_name="label.pdf",
-                        mime="application/pdf"
-                    )
+                st.download_button(
+                    label="📄 Download PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name="label.pdf",
+                    mime="application/pdf"
+                )
                     
-                    st.success('PDF generated successfully!')
+                st.success('PDF generated successfully!')
 
-                    # insert record into db
-                    collection.insert_one(data)
-                else:
-                    st.error("PDF generation failed due to missing image or data.")
+                # insert record into db
+                collection.insert_one(data)
+            else:
+                st.error("PDF generation failed due to missing image or data.")
             
 if __name__ == "__main__":
     table_data = []  # Initialize table data
