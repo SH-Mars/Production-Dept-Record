@@ -33,11 +33,6 @@ collection = db['packaging_material']
 # generate PDF file for label printint
 def generate_pdf(image_path, user_data, image_width=135, image_height=115):
     buffer = io.BytesIO()
-
-    # check if image exists
-    if not os.path.exists(image_path):
-        st.error(f"Image not found: {image_path}")
-        return None
     
     # create a pdf document
     custom_page_size = (500, 500)
