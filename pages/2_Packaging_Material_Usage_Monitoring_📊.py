@@ -162,9 +162,8 @@ def main():
                     pdf_display = f'<iframe src="data:application/pdf;base64,{pdf_base64}" width="700" height="700"></iframe>'
                     st.markdown(pdf_display, unsafe_allow_html=True)
 
-                    # optional fallback download
                     st.download_button(
-                        label="Download PDF",
+                        label="📄 Download PDF",
                         data=pdf_buffer.getvalue(),
                         file_name="label.pdf",
                         mime="application/pdf"
