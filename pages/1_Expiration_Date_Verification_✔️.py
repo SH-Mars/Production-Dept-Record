@@ -63,7 +63,15 @@ def email_notification(a, b, c, d, e):
         
 def clear_barcode():
         st.session_state['Barcode'] = ""
+    
+# ------------------------------------------------------------------
 
+def next_weekday(d, weekday):
+    days_ahead = weekday - d.weekday()
+    if days_ahead <= 0:
+        days_ahead += 7
+    return d + dt.timedelta(days_ahead)
+    
 # ------------------------------------------------------------------
 
 def check_if_lot_exists(lot):
@@ -127,6 +135,18 @@ def main():
         # Get today date
         today = dt.date.today()
 
+        if (today+relativedelta(day=31) - today) <= dt.timedelta(days=2):
+            st.info("It's the end of the month, please remember to check the checkbox if the production of this Lot is going to be next month.")
+            checkbox = st.checkbox("Check if the label is preprinted at the end of the month, and the production will start next week, in the beginning of the month.")
+            
+            if checkbox:
+                mfg_date = next_weekday(today, 0)
+                corr_exp = dt.date(mfg_date.year + 3, mfg_date.month, 1).strftime('%y%m%d')
+            else:
+                corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
+        else:
+            corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
+        
         corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
         
         tzInfo = pytz.timezone('America/Los_Angeles')
