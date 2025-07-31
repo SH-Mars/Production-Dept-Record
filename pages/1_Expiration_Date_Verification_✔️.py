@@ -136,7 +136,7 @@ def main():
         # Get today date
         today = dt.date.today()
 
-        if (today+relativedelta(day=31) - today) <= dt.timedelta(days=2):
+        if ((today + relativedelta(day=31)) - today) <= timedelta(days=2):
             st.info("It's the end of the month, please remember to check the checkbox if the production of this Lot is going to be next month.")
             checkbox = st.checkbox("Check if the label is preprinted at the end of the month, and the production will start next week, in the beginning of the month.")
             
@@ -145,10 +145,6 @@ def main():
                 corr_exp = dt.date(mfg_date.year + 3, mfg_date.month, 1).strftime('%y%m%d')
             else:
                 corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
-        else:
-            corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
-        
-        corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
         
         tzInfo = pytz.timezone('America/Los_Angeles')
         scan_time = dt.datetime.now(tz=tzInfo).strftime('%Y-%m-%d %H:%M:%S')
