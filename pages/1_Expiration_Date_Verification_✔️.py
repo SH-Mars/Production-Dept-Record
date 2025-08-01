@@ -145,7 +145,8 @@ def main():
                 corr_exp = dt.date(mfg_date.year + 3, mfg_date.month, 1).strftime('%y%m%d')
             else:
                 corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
-        
+        else:
+            corr_exp = dt.date(today.year + 3, today.month, 1).strftime('%y%m%d')
         tzInfo = pytz.timezone('America/Los_Angeles')
         scan_time = dt.datetime.now(tz=tzInfo).strftime('%Y-%m-%d %H:%M:%S')
 
